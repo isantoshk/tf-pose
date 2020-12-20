@@ -1,14 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "pafprocess.h"
+#include "paf.h"
 #include <math.h>
 
 #define PEAKS(i, j, k) peaks[k+p3*(j+p2*i)]
 #define HEAT(i, j, k) heatmap[k+h3*(j+h2*i)]
 #define PAF(i, j, k) pafmap[k+f3*(j+f2*i)]
-#define w=65
-#define h=109
-#define p = 57
+#define w 65
+#define h 109
+#define p 57
 #define loop(i, N) for(int i=0; i<N; i++)
 
 int process_paf(int p1, int p2, int p3, float *peaks, int h1, int h2, int h3, float *heatmap, int f1, int f2, int f3, float *pafmap)
@@ -196,7 +196,7 @@ float* gausian_filter(float* heatmap, int filter_size, float sigma, int heatmap_
 }
 
 //implemented for window 3 only
-float* max_pool(float* heatmap, int window)
+float* max_pool(float[][][] heatmap, int window)
 {
 	float padded_heatmap[w+2][h+2][p/3];
 	loop(k, p/3)
@@ -219,7 +219,16 @@ float* max_pool(float* heatmap, int window)
 		{
 			loop(i, w)
 			{
-                
+                float max_ = padded_heatmap[i][j][k];
+                loop(l, 3)
+                {
+                    loop(m, 3)
+                    {
+                        if(padded_heatmap[i-1+l][j-1+m][k]>max_)
+                            max_ = padded_heatmap[i-1+l][j-1+m][k];
+                    }
+                }
+                max[i][j][k] = max_;
 			}
 		}
 	}
@@ -227,7 +236,7 @@ float* max_pool(float* heatmap, int window)
 
 float* detect_peaks(float* heatmap)
 {
-	float filtered[][][] = gausian_filter(heatmap, 25, 3.0, 19)
+	float* filtered = gausian_filter(heatmap, 25, 3.0, 19);
 
 	
 }
@@ -254,6 +263,7 @@ int main(int argc, char const *argv[])
 		else
 			paf[(i%(w*h))%w][(i%(w*h))/w][i/(w*h)] = values[i];
 	}
-	
+	float temp[2][2][1] = {{1, {2, 3}}, {4, {5, 6}}};
+    max_pool(temp, 3);
 	return 0;
 }
